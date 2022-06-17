@@ -22,7 +22,7 @@ letters_db = LOAD 'data.tsv' USING PigStorage('\t')
 
 grouped = GROUP letters_db BY letter;
 
-lettercount = FOREACH grouped GENERATE group, COUNT(letter);
+lettercount = FOREACH grouped GENERATE group, COUNT(letters_db);
 
-STORE lettercount INTO 'output';
+STORE lettercount INTO 'output/' USING PigStorage(',');
 
