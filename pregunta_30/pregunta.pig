@@ -34,3 +34,30 @@ $ pig -x local -f pregunta.pig
         >>> Escriba su respuesta a partir de este punto <<<
 */
 
+persons_db = LOAD 'data.csv' USING PigStorage(',')
+    AS (
+      rank:int,
+      name:chararray,
+      lastname:chararray,
+      data:datetime,
+      color:chararray,
+      number:int
+    );
+
+dates_db = FOREACH persons_db GENERATE ToString(data,'yyyy-MM-dd') AS Date
+                                        ,ToString(data,'dd') AS TwodigitDay
+                                        ,GetDay(data) AS Day
+                                        ,LOWER(ToString(data,'EEEEE')) AS StringweekDay
+                                        ;
+
+corrected_dates_db = FOREACH dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'monday','lunes') as StringweekDay;  
+corrected_dates_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'tuesday','martes') as StringweekDay; 
+corrected_dates_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'wednesday','miercoles') as StringweekDay;
+corrected_dates_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'thursday','jueves') as StringweekDay;
+corrected_dates_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'friday','viernes') as StringweekDay;
+corrected_dates_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'saturday','sabado') as StringweekDay;
+corrected_dates_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, REPLACE(StringweekDay,'sunday','domingo') as StringweekDay;
+
+final_date_columns_db = FOREACH corrected_dates_db GENERATE Date, TwodigitDay, Day, SUBSTRING(StringweekDay,0,3), StringweekDay;
+
+STORE final_date_columns_db INTO 'output/' USING PigStorage(',');
