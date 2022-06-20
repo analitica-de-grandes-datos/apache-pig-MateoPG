@@ -20,3 +20,18 @@ $ pig -x local -f pregunta.pig
 
 */
 
+persons_db = LOAD 'data.csv' USING PigStorage(',')
+    AS (
+      rank:int,
+      name:chararray,
+      lastname:chararray,
+      data:datetime,
+      color:chararray,
+      number:int
+    );
+
+filtered_db = FILTER persons_db BY color == 'blue' AND STARTSWITH(name,'Z');
+
+colorname_db = FOREACH filtered_db GENERATE CONCAT(name,' ',color);
+
+STORE colorname_db INTO 'output/' USING PigStorage(',');

@@ -29,4 +29,4 @@ grouped_col = GROUP flatten_second BY (secondcol, thirdcol);
 
 counted_col = FOREACH grouped_col GENERATE group, COUNT(flatten_second);
 
-DUMP counted_col
+STORE counted_col INTO 'output/' USING PigStorage(',');
