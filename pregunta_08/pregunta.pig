@@ -16,4 +16,17 @@ $ pig -x local -f pregunta.pig
 
         >>> Escriba su respuesta a partir de este punto <<<
 */
+letters_db = LOAD 'data.tsv' USING PigStorage('\t')
+        AS (
+                letters:chararray,
+                dict_letters:BAG{dict:TUPLE(letter:chararray)},
+                letters_list:MAP[]
+        );
 
+flatten_second = FOREACH letters_db GENERATE FLATTEN(dict_letters) AS secondcol, FLATTEN(letters_list) AS thirdcol;
+
+grouped_col = GROUP flatten_second BY (secondcol, thirdcol);
+
+counted_col = FOREACH grouped_col GENERATE group, COUNT(flatten_second);
+
+DUMP counted_col
