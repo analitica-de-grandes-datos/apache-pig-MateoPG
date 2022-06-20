@@ -12,3 +12,17 @@ $ pig -x local -f pregunta.pig
 
         >>> Escriba su respuesta a partir de este punto <<<
 */
+letters_db = LOAD 'data.tsv' USING PigStorage('\t')
+        AS (
+                letters:chararray,
+                dict_letters:BAG{dict:TUPLE(letter:chararray)},
+                letters_list:MAP[]
+        );
+
+letters_second_col = FOREACH letters_db GENERATE FLATTEN(dict_letters) AS ind_letter;
+
+letters_grouped = GROUP letters_second_col BY ind_letter;
+
+letters_count = FOREACH letters_grouped GENERATE group, COUNT(letters_second_col);
+
+STORE letters_count INTO 'output/' USING PigStorage(',');
